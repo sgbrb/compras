@@ -58,9 +58,9 @@
         </div>
       </div>
 
-    <div class="tabs">
+        <div class="tabs">
   <div class="tab active" onclick="filterItems('all')">Todos</div>
-  <div class="tab" onclick="filterItems('pending')">Pendentes</div>
+  <div class="tab" onclick="openModal('modalShare')">🔗 Compartilhar</div>
 </div>
 
       <div class="items-container" id="itemsContainer">
@@ -80,9 +80,8 @@
         <button class="btn-add" onclick="addItem()">+</button>
       </div>
 
-      <!-- Barra de ações -->
+            <!-- Barra de ações -->
       <div class="action-bar">
-        <button class="btn-action" onclick="openModal('modalShare')">🔗 Compartilhar</button>
         <button class="btn-action btn-danger" onclick="deleteCurrentList()">🗑️ Excluir</button>
       </div>
     </div>
@@ -163,6 +162,22 @@
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal('modalEditList')">Cancelar</button>
       <button class="btn-primary" onclick="saveListName()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+  <!-- MODAL: Editar Item -->
+<div class="modal" id="modalEditItem">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Editar Gasto</h3>
+      <button class="modal-close" onclick="closeModal('modalEditItem')">✕</button>
+    </div>
+    <input type="text" id="editItemName" placeholder="Descrição do gasto">
+    <input type="number" id="editItemPrice" placeholder="R$" step="0.01" style="margin-top:10px;">
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('modalEditItem')">Cancelar</button>
+      <button class="btn-primary" onclick="saveItemEdit()">Salvar</button>
     </div>
   </div>
 </div>
