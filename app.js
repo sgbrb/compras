@@ -2,6 +2,7 @@
 let lists = [];
 let currentListId = null;
 let currentFilter = 'all';
+let currentItemId = null;
 
 // ========== INICIALIZAÇÃO ==========
 document.addEventListener('DOMContentLoaded', () => {
@@ -23,6 +24,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.key === 'Enter') createList();
   });
 
+    // Enter para salvar edição de item
+  document.getElementById('editItemName').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') saveItemEdit();
+  });
+  document.getElementById('editItemPrice').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') saveItemEdit();
+  });
   // Enter para salvar nome da lista
   document.getElementById('editListName').addEventListener('keypress', (e) => {
     if (e.key === 'Enter') saveListName();
@@ -118,7 +126,6 @@ function showScreen(screenId) {
   }
 }
 
-// ========== LISTAS ==========
 function renderLists() {
   const container = document.getElementById('listsContainer');
   const empty = document.getElementById('emptyLists');
@@ -135,22 +142,26 @@ function renderLists() {
     const totalItems = list.items.length;
     const doneItems = list.items.filter(i => i.done).length;
     const totalPrice = list.items.reduce((sum, i) => sum + (i.price || 0), 0);
-    const donePrice = list.items.filter(i => i.done).reduce((sum, i) => sum + (i.price || 0), 0);
     const percent = totalItems > 0 ? (doneItems / totalItems) * 100 : 0;
 
     return `
       <div class="list-card" onclick="openList('${list.id}')">
         <div style="display:flex; justify-content:space-between; align-items:flex-start;">
           <div style="flex:1;">
-           <h3 onclick="event.stopPropagation(); editListName('${list.id}')" style="cursor:pointer;">${escapeHtml(list.name)} ✏️</h3>
+            <h3 style="display:inline;">${escapeHtml(list.name)}</h3>
             <div class="list-meta">${totalItems} itens • R$ ${formatPrice(totalPrice)}</div>
           </div>
-          <span style="font-size:18px; color:var(--text-muted);">→</span>
+          <div class="menu-container">
+            <button class="menu-btn" onclick="event.stopPropagation(); toggleMenu('menu-${list.id}')">⋮</button>
+            <div class="menu-dropdown" id="menu-${list.id}">
+              <div class="menu-item" onclick="event.stopPropagation(); editListName('${list.id}'); closeAllMenus();">✏️ Editar título</div>
+            </div>
+          </div>
         </div>
         <div class="list-progress-bar">
           <div class="list-progress-fill" style="width:${percent}%"></div>
         </div>
-       <div class="list-progress-text">${totalItems} itens • R$ ${formatPrice(totalPrice)} total</div>
+        <div class="list-progress-text">${totalItems} itens • R$ ${formatPrice(totalPrice)} total</div>
       </div>
     `;
   }).join('');
@@ -240,7 +251,6 @@ function saveListName() {
   }
 }
 
-// ========== ITENS ==========
 function renderItems() {
   const list = lists.find(l => l.id === currentListId);
   if (!list) return;
@@ -254,8 +264,7 @@ function renderItems() {
   const container = document.getElementById('itemsContainer');
   const empty = document.getElementById('emptyItems');
 
-    let items = list.items;
-  if (currentFilter === 'pending') items = items.filter(i => !i.done);
+  let items = list.items;
 
   // Ordenar: pendentes primeiro, depois por data (mais recente)
   items = items.sort((a, b) => {
@@ -280,7 +289,15 @@ function renderItems() {
         <div class="item-name ${item.done ? 'checked' : ''}">${escapeHtml(item.name)}</div>
         <div class="item-date">${formatDate(item.date)}</div>
       </div>
-      <div class="item-price ${item.done ? 'checked' : ''}">R$ ${formatPrice(item.price)}</div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <div class="item-price ${item.done ? 'checked' : ''}">R$ ${formatPrice(item.price)}</div>
+        <div class="menu-container">
+          <button class="menu-btn" onclick="event.stopPropagation(); toggleMenu('menu-item-${item.id}')">⋮</button>
+          <div class="menu-dropdown" id="menu-item-${item.id}">
+            <div class="menu-item" onclick="event.stopPropagation(); editItem('${item.id}'); closeAllMenus();">✏️ Editar</div>
+          </div>
+        </div>
+      </div>
     </div>
   `).join('');
 }
@@ -558,10 +575,68 @@ function showToast(message) {
   toast.classList.add('show');
   setTimeout(() => toast.classList.remove('show'), 2500);
 }
+// ========== MENU DROPDOWN ==========
+function toggleMenu(menuId) {
+  closeAllMenus();
+  const menu = document.getElementById(menuId);
+  if (menu) menu.classList.add('active');
+}
+
+function closeAllMenus() {
+  document.querySelectorAll('.menu-dropdown').forEach(m => m.classList.remove('active'));
+}
+
+// ========== EDITAR ITEM ==========
+function editItem(itemId) {
+  const list = lists.find(l => l.id === currentListId);
+  if (!list) return;
+  const item = list.items.find(i => i.id === itemId);
+  if (!item) return;
+
+  currentItemId = itemId;
+  document.getElementById('editItemName').value = item.name;
+  document.getElementById('editItemPrice').value = item.price || '';
+  openModal('modalEditItem');
+}
+
+function saveItemEdit() {
+  const nameInput = document.getElementById('editItemName');
+  const priceInput = document.getElementById('editItemPrice');
+
+  const name = nameInput.value.trim();
+  const price = parseFloat(priceInput.value) || 0;
+
+  if (!name) {
+    showToast('Digite a descrição do gasto');
+    return;
+  }
+
+  const list = lists.find(l => l.id === currentListId);
+  if (!list) return;
+
+  const item = list.items.find(i => i.id === currentItemId);
+  if (item) {
+    item.name = name;
+    item.price = price;
+    saveData();
+    renderItems();
+    updateStatsBar();
+    showToast('Gasto atualizado!');
+    closeModal('modalEditItem');
+    currentItemId = null;
+  }
+}
 
 // Fechar modal ao clicar fora
 document.querySelectorAll('.modal').forEach(modal => {
   modal.addEventListener('click', (e) => {
     if (e.target === modal) modal.classList.remove('active');
   });
+});
+
+// Fechar menus ao clicar em qualquer lugar
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.menu-container')) {
+    closeAllMenus();
+  }
 });
