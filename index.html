@@ -14,8 +14,8 @@
     <!-- TELA: LISTAS -->
     <div class="screen active" id="screen-lists">
       <div class="header">
-        <h1>🛒 Minhas Listas</h1>
-        <p>Organize suas compras</p>
+        <h1>💰 Minhas Listas</h1>
+        <p>Controle seus gastos</p>
       </div>
 
       <div class="stats-bar">
@@ -40,7 +40,7 @@
       <div class="empty-state" id="emptyLists" style="display:none;">
         <div class="empty-icon">📝</div>
         <div class="empty-title">Nenhuma lista ainda</div>
-        <div class="empty-text">Crie sua primeira lista de compras!</div>
+       <div class="empty-text">Crie sua primeira lista de gastos!</div>
       </div>
 
       <button class="fab" onclick="openModal('modalNewList')">+</button>
@@ -68,14 +68,14 @@
       </div>
 
       <div class="empty-state" id="emptyItems" style="display:none;">
-        <div class="empty-icon">🛒</div>
+        <div class="empty-icon">💸</div>
         <div class="empty-title">Lista vazia</div>
-        <div class="empty-text">Adicione seu primeiro item abaixo!</div>
+        <div class="empty-text">Adicione seu primeiro gasto abaixo!</div>
       </div>
 
       <!-- Barra de adicionar item -->
       <div class="add-item-bar">
-        <input type="text" id="itemName" placeholder="Nome do item (ex: Leite)" class="input-name">
+        <input type="text" id="itemName" placeholder="Descrição do gasto" class="input-name">
         <input type="number" id="itemPrice" placeholder="R$" class="input-price" step="0.01">
         <button class="btn-add" onclick="addItem()">+</button>
       </div>
@@ -101,7 +101,7 @@
         </div>
         <div class="stat-card">
           <div class="stat-value" id="statTotalItens">0</div>
-          <div class="stat-label">Itens comprados</div>
+          <div class="stat-label">Itens registrados</div>
         </div>
         <div class="stat-card">
           <div class="stat-value" id="statMediaDia">R$ 0,00</div>
