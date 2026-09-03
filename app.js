@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.key === 'Enter') saveListName();
   });
 });
-});
+
 
 // ========== LOCALSTORAGE ==========
 function loadData() {
@@ -150,7 +150,7 @@ function renderLists() {
         <div class="list-progress-bar">
           <div class="list-progress-fill" style="width:${percent}%"></div>
         </div>
-        <div class="list-progress-text">${doneItems} de ${totalItems} comprados • R$ ${formatPrice(donePrice)} gasto</div>
+       <div class="list-progress-text">${totalItems} itens • R$ ${formatPrice(totalPrice)} total</div>
       </div>
     `;
   }).join('');
@@ -293,7 +293,7 @@ function addItem() {
   const price = parseFloat(priceInput.value) || 0;
 
   if (!name) {
-    showToast('Digite o nome do item');
+    sshowToast('Digite a descrição do gasto')
     return;
   }
 
@@ -316,7 +316,7 @@ function addItem() {
   priceInput.value = '';
   nameInput.focus();
 
-  showToast(price > 0 ? `+ R$ ${formatPrice(price)}` : 'Item adicionado');
+  showToast(price > 0 ? `+ R$ ${formatPrice(price)}` : 'Gasto adicionado');
 }
 
 function toggleItem(itemId) {
