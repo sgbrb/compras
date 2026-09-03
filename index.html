@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#2D6A4F">
+  <title>Lista de Compras</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="app">
+    <!-- TELA: LISTAS -->
+    <div class="screen active" id="screen-lists">
+      <div class="header">
+        <h1>🛒 Minhas Listas</h1>
+        <p>Organize suas compras</p>
+      </div>
+
+      <div class="stats-bar">
+        <div class="stat-mini">
+          <span class="stat-mini-value" id="totalGastoHoje">R$ 0,00</span>
+          <span class="stat-mini-label">gasto hoje</span>
+        </div>
+        <div class="stat-mini">
+          <span class="stat-mini-value" id="totalGastoMes">R$ 0,00</span>
+          <span class="stat-mini-label">este mês</span>
+        </div>
+        <div class="stat-mini">
+          <span class="stat-mini-value" id="totalListas">0</span>
+          <span class="stat-mini-label">listas</span>
+        </div>
+      </div>
+
+      <div id="listsContainer">
+        <!-- Listas serão inseridas aqui via JS -->
+      </div>
+
+      <div class="empty-state" id="emptyLists" style="display:none;">
+        <div class="empty-icon">📝</div>
+        <div class="empty-title">Nenhuma lista ainda</div>
+        <div class="empty-text">Crie sua primeira lista de compras!</div>
+      </div>
+
+      <button class="fab" onclick="openModal('modalNewList')">+</button>
+    </div>
+
+    <!-- TELA: DETALHE DA LISTA -->
+    <div class="screen" id="screen-detail">
+      <div class="header">
+        <div class="header-flex">
+          <button class="back-btn" onclick="showScreen('screen-lists')">←</button>
+          <div class="header-info">
+  <h1 id="detailTitle" onclick="openEditListModal()" style="cursor:pointer;">Lista</h1>
+  <p id="detailMeta">0 itens • R$ 0,00</p>
+</div>
+        </div>
+      </div>
+
+    <div class="tabs">
+  <div class="tab active" onclick="filterItems('all')">Todos</div>
+  <div class="tab" onclick="filterItems('pending')">Pendentes</div>
+</div>
+
+      <div class="items-container" id="itemsContainer">
+        <!-- Itens serão inseridos aqui -->
+      </div>
+
+      <div class="empty-state" id="emptyItems" style="display:none;">
+        <div class="empty-icon">🛒</div>
+        <div class="empty-title">Lista vazia</div>
+        <div class="empty-text">Adicione seu primeiro item abaixo!</div>
+      </div>
+
+      <!-- Barra de adicionar item -->
+      <div class="add-item-bar">
+        <input type="text" id="itemName" placeholder="Nome do item (ex: Leite)" class="input-name">
+        <input type="number" id="itemPrice" placeholder="R$" class="input-price" step="0.01">
+        <button class="btn-add" onclick="addItem()">+</button>
+      </div>
+
+      <!-- Barra de ações -->
+      <div class="action-bar">
+        <button class="btn-action" onclick="openModal('modalShare')">🔗 Compartilhar</button>
+        <button class="btn-action btn-danger" onclick="deleteCurrentList()">🗑️ Excluir</button>
+      </div>
+    </div>
+
+    <!-- TELA: RESUMO (GASTOS) -->
+    <div class="screen" id="screen-stats">
+      <div class="header">
+        <h1>📊 Meus Gastos</h1>
+        <p>Controle financeiro</p>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="statTotalMes">R$ 0,00</div>
+          <div class="stat-label">Total este mês</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statTotalItens">0</div>
+          <div class="stat-label">Itens comprados</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statMediaDia">R$ 0,00</div>
+          <div class="stat-label">Média por dia</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statCategoriaTop">—</div>
+          <div class="stat-label">Categoria top</div>
+        </div>
+      </div>
+
+      <div class="section-title">Gastos por categoria</div>
+      <div id="categoriasContainer">
+        <!-- Categorias via JS -->
+      </div>
+
+      <div class="section-title">Histórico recente</div>
+      <div id="historicoContainer">
+        <!-- Histórico via JS -->
+      </div>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <div class="bottom-nav" id="bottomNav">
+      <div class="nav-item active" onclick="showScreen('screen-lists')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        <span>Listas</span>
+      </div>
+      <div class="nav-item" onclick="showScreen('screen-stats')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+        <span>Gastos</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Nova Lista -->
+  <div class="modal" id="modalNewList">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Nova Lista</h3>
+        <button class="modal-close" onclick="closeModal('modalNewList')">✕</button>
+      </div>
+      <input type="text" id="newListName" placeholder="Nome da lista (ex: Compras do Mês)">
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeModal('modalNewList')">Cancelar</button>
+        <button class="btn-primary" onclick="createList()">Criar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Editar Nome da Lista -->
+<div class="modal" id="modalEditList">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Editar Nome</h3>
+      <button class="modal-close" onclick="closeModal('modalEditList')">✕</button>
+    </div>
+    <input type="text" id="editListName" placeholder="Nome da lista">
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('modalEditList')">Cancelar</button>
+      <button class="btn-primary" onclick="saveListName()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+  <!-- MODAL: Compartilhar -->
+  <div class="modal" id="modalShare">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Compartilhar Lista</h3>
+        <button class="modal-close" onclick="closeModal('modalShare')">✕</button>
+      </div>
+      <p style="font-size:13px; color:#6C757D; margin-bottom:12px;">Copie o código abaixo e envie para quem quiser. A pessoa pode importar no app dela.</p>
+      <textarea id="shareCode" readonly></textarea>
+      <button class="btn-primary" style="width:100%; margin-top:10px;" onclick="copyShareCode()">📋 Copiar Código</button>
+      <div style="margin-top:16px; padding-top:16px; border-top:1px solid #dee2e6;">
+        <p style="font-size:13px; color:#6C757D; margin-bottom:8px;">Ou importe uma lista:</p>
+        <textarea id="importCode" placeholder="Cole o código aqui..."></textarea>
+        <button class="btn-primary" style="width:100%; margin-top:10px;" onclick="importList()">📥 Importar Lista</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js');
+    }
+  </script>
+</body>
+</html>
